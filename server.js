@@ -22,6 +22,8 @@ const db = mysql.createConnection(
   console.log(`Connected to the employee_db database.`)
 );
 
+
+
 const addDepartment = [{
   type: 'input',
   name: 'addDepartment',
@@ -91,53 +93,96 @@ const questions = () => {
       }
       else if (response.homepage === 'Add Employee') {
         inquirer
-        .prompt(addEmployee)
-        .then((response => {
-          const arr = [response.employeeFirstName, response.employeeLastName]
+          .prompt(addEmployee)
+          .then((response => {
+            const arr = [response.employeeFirstName, response.employeeLastName]
 
-          db.query('SELECT * FROM role', (err, res) => {
-            const roles = res.map(({id, title}) => ({name: title, value: id}))
-            inquirer
-            .prompt([
-              {
-                type: 'list',
-                message: 'What is the employees role?',
-                name: 'employeeRole',
-                choices: roles
-              }
-            ])
-            .then(response => {
-              const role = response.employeeRole
-              arr.push(role)
-              db.query("SELECT id, concat(first_name,' ',last_name) AS name FROM employee WHERE manager_id IS NULL;", (err, res) => {
-                const managers = res.map(({name, id}) => ({ name: name, value: id}))
-                inquirer
+            db.query('SELECT * FROM role', (err, res) => {
+              const roles = res.map(({ id, title }) => ({ name: title, value: id }))
+              inquirer
                 .prompt([
                   {
-                    type: 'list', 
-                    message: 'Who is the employees manager',
-                    name: 'employeeManager',
-                    choices: managers
+                    type: 'list',
+                    message: 'What is the employees role?',
+                    name: 'employeeRole',
+                    choices: roles
                   }
                 ])
-                .then( response => {
-                  const manager = response.employeeManager
-                  arr.push(manager)
-                  db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`, arr, function(err, results) {
-                    if(err) {
-                      response.status(500).json({ error: err.message });
-                    }
-                     console.log(`Added employee to the database`);
-                    return questions();
-                  })
-                })
-              })
-            })
-          })
-        }))
+                .then(response => {
+                  const role = response.employeeRole
+                  arr.push(role)
+                  db.query("SELECT id, concat(first_name,' ',last_name) AS name FROM employee WHERE manager_id IS NULL;", (err, res) => {
+                    const managers = res.map(({ name, id }) => ({ name: name, value: id }))
+                    inquirer
+                      .prompt([
+                        {
+                          type: 'list',
+                          message: 'Who is the employees manager',
+                          name: 'employeeManager',
+                          choices: managers
+                        }
+                      ])
+                      .then(response => {
+                        const manager = response.employeeManager
+                        arr.push(manager)
+                        db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`, arr, function (err, results) {
+                          if (err) {
+                            response.status(500).json({ error: err.message });
+                          }
+                          console.log(`Added employee to the database`);
+                          return questions();
+                        });
+                      });
+                  });
+                });
+            });
+          }));
 
       }
       else if (response.homepage === 'Update Employee Role') {
+        db.query("SELECT id, concat(first_name,' ',last_name) AS name FROM employee", (err, res) => {
+          const employees = res.map(({id, name}) => ({name: name, value: id}))
+          const arr =[];
+          inquirer 
+          .prompt([
+            {
+              type: 'list',
+              message: "Which employees role do you want to update?",
+              name: 'employeeUpdate',
+              choices: employees
+            }
+          ])
+          .then(response => {
+            const employeeUpdate = response.employeeUpdate
+            arr.push(employeeUpdate)
+            db.query('SELECT * FROM role', (err, res) => {
+              const roles = res.map(({ id, title }) => ({ name: title, value: id }))
+              inquirer
+              .prompt([
+                {
+                  type: 'list',
+                  message: 'Which role do you want to assign the selected employee?',
+                  name: 'employeeRoleUpdate',
+                  choices: roles
+                }
+              ])
+              .then(response => {
+                const role = response.employeeRoleUpdate
+                arr.push(role)
+                let employeeUpdate = arr[0]
+                arr[0] = role
+                arr[1] = employeeUpdate
+                db.query(`UPDATE employee SET role_id = ? WHERE id = ?`, arr, function (err, results) {
+                  if (err) {
+                    response.status(500).json({ error: err.message });
+                  }
+                  console.log(`Updated employee in the database`);
+                  return questions();
+                });
+              })
+            })
+          })
+        })
 
       }
       else if (response.homepage === 'View All Roles') {
@@ -157,7 +202,7 @@ const questions = () => {
             const arr = [response.roleName, response.roleSalary]
 
             db.query('SELECT * FROM department', (err, res) => {
-              const dep = res.map(( { id, name }) => ({name: name, value: id }))
+              const dep = res.map(({ id, name }) => ({ name: name, value: id }))
               inquirer
                 .prompt([
                   {
@@ -170,11 +215,11 @@ const questions = () => {
                 .then(response => {
                   const department = response.roleDepartment
                   arr.push(department);
-                  db.query(`INSERT INTO role (title, salary, department_id) VALUES (?,?,?)`, arr, function(err, results) {
-                    if(err) {
+                  db.query(`INSERT INTO role (title, salary, department_id) VALUES (?,?,?)`, arr, function (err, results) {
+                    if (err) {
                       response.status(500).json({ error: err.message });
                     }
-                     console.log(`Added role to the database`);
+                    console.log(`Added role to the database`);
                     return questions();
                   })
                 })
@@ -213,12 +258,7 @@ const questions = () => {
 
 };
 
-
-
-
 questions();
-
-
 
 
 // Connect to the database before starting the Express.js server
