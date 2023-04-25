@@ -139,14 +139,18 @@ const questions = () => {
                           if (err) {
                             response.status(500).json({ error: err.message });
                           }
-                          console.log(`Added employee to the database`);
+                          
                           // returns the function question to start over function
+                          console.log(`Added ${arr[0]} ${arr[1]} to the database`);
                           return questions();
                         });
+                        
                       });
+                      
                   });
                 });
             });
+            
           }));
 
       }
@@ -197,7 +201,7 @@ const questions = () => {
                   if (err) {
                     response.status(500).json({ error: err.message });
                   }
-                  console.log(`Updated employee in the database`);
+                  console.log(`Updated employees's role`);
                   // returns the function question to start over function
                   return questions();
                 });
@@ -248,7 +252,7 @@ const questions = () => {
                     if (err) {
                       response.status(500).json({ error: err.message });
                     }
-                    console.log(`Added role to the database`);
+                    console.log(`Added ${arr[0]} to the database`);
                     // returns the function question to start over function
                     return questions();
                   })
