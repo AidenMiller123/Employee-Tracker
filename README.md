@@ -32,7 +32,11 @@
   
   link of Walkthrough Video:
   
-https://drive.google.com/file/d/11Pm-GypM5T3-KZ6p4SLf1TQ53pTYnKWv/view 
+ https://drive.google.com/file/d/11Pm-GypM5T3-KZ6p4SLf1TQ53pTYnKWv/view 
+ 
+ Second link shows the functionality of Quit selection:
+ 
+ https://drive.google.com/file/d/1161VBLRp9AXTs5hdTPFuk9Vu6WnrEbJo/view 
   
   
  
